@@ -37,21 +37,25 @@ const UserProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  const updateUser = (userData) => {
-    if (!userData) {
-      console.warn('updateUser called with undefined data');
-      return;
-    }
-    
-    setUser(userData);
-    
-    // Only set token if it exists in userData
-    if (userData.token) {
-      localStorage.setItem('token', userData.token);
-    }
-    
-    setLoading(false);
-  };
+ const updateUser = (userData) => {
+  console.log('🔍 updateUser called from:', new Error().stack);
+  
+  if (!userData) {
+    console.warn('updateUser called with undefined data');
+    console.trace('Stack trace for undefined call:'); // This will show the call stack
+    return;
+  }
+  
+  console.log('✅ Valid userData received:', userData);
+  setUser(userData);
+  
+  // Only set token if it exists in userData
+  if (userData.token) {
+    localStorage.setItem('token', userData.token);
+  }
+  
+  setLoading(false);
+};
 
   const clearUser = () => {
     setUser(null);
