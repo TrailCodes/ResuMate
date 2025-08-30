@@ -13,14 +13,21 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
-app.use(
-  cors({
-    origin: 'http://localhost:5173',
-    credentials: true,
-  })
-);
+// CORS configuration for production
+const corsOptions = {
+  origin:
+    process.env.NODE_ENV === 'production'
+      ? [
+          'https://your-frontend-domain.vercel.app',
+          'https://resu-mate-five.vercel.app',
+        ]
+      : 'http://localhost:5173',
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 // Connect DB
 connectDB();
@@ -34,16 +41,32 @@ app.use(
   '/upload',
   express.static(path.join(__dirname, 'upload'), {
     setHeaders: (res, path) => {
-      res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
+      res.set(
+        'Access-Control-Allow-Origin',
+        process.env.NODE_ENV === 'production'
+          ? 'https://your-frontend-domain.vercel.app'
+          : 'http://localhost:5173'
+      );
     },
   })
 );
 
-// Router
+// Root route
 app.get('/', (req, res) => {
-  res.send('API WORKING');
+  res.json({ message: 'API is working!', status: 'success' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is starting at PORT No at ${PORT}`);
+// Health check route
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
+
+// Export for Vercel
+export default app;
+
+// Only start server in development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on PORT ${PORT}`);
+  });
+}
