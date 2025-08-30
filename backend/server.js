@@ -1,11 +1,12 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import userRouter from './routes/userRouter.js';
 import resumeRouter from './routes/resumeRoute.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,23 +22,24 @@ app.use(
   })
 );
 
-//Connect DB
+// Connect DB
 connectDB();
 
-//Middlewaare
+// Middleware
 app.use(express.json());
 app.use('/api/auth', userRouter);
 app.use('/api/resume', resumeRouter);
 
 app.use(
   '/upload',
-  express.static(path.join(__dirname, 'uplaod'), {
-    setHeaders: (req, _path) => {
+  express.static(path.join(__dirname, 'upload'), {
+    setHeaders: (res, path) => {
       res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
     },
   })
 );
-//Router
+
+// Router
 app.get('/', (req, res) => {
   res.send('API WORKING');
 });
