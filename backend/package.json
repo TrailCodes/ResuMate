@@ -3,7 +3,9 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "server.js",
-  "scripts": {},
+  "scripts": {
+    "start": "vercel dev"
+  },
   "author": "",
   "license": "ISC",
   "description": "",
