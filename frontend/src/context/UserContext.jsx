@@ -17,25 +17,52 @@ const UserProvider = ({ children }) => {
       return;
     }
 
-   const fetchUser = async () => {
+const fetchUser = async () => {
   try {
+    console.log('🔍 Fetching user profile...');
     const response = await axiosInstance.get(API_PATHS.AUTH.GET_PROFILE);
-    if (response.data && response.data.user) {
+    
+    console.log('📦 API Response:', response.data);
+    
+    // Handle different response structures
+    let userData = null;
+    
+    if (response.data.user) {
+      // Structure: { user: {...} }
+      userData = response.data.user;
+    } else if (response.data.id || response.data.email) {
+      // Structure: { id, email, name, ... } (user data directly)
+      userData = response.data;
+    } else if (response.data.data) {
+      // Structure: { data: { user: {...} } }
+      userData = response.data.data.user || response.data.data;
+    }
+    
+    if (userData) {
+      console.log('✅ User data found:', userData);
       updateUser({
-        ...response.data.user,  
+        ...userData,  
         token: accessToken
       });
+    } else {
+      console.warn('❌ No user data found in response');
+      console.log('Available response keys:', Object.keys(response.data));
+      clearUser();
     }
   } catch (error) {
-    console.error("User not Authenticated", error);
+    console.error("User fetch failed:", error);
+    
+    // Log more details about the error
+    if (error.response) {
+      console.error("Response status:", error.response.status);
+      console.error("Response data:", error.response.data);
+    }
+    
     clearUser();
   } finally {
     setLoading(false);
   }
 };
-
-    fetchUser();
-  }, []);
 
  const updateUser = (userData) => {
   console.log('🔍 updateUser called from:', new Error().stack);
