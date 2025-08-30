@@ -50,26 +50,48 @@ const SignUp = ({ setCurrentPage }) => {
       return;
     }
 
-    try {
-      const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
-        name: formData.name.trim(),
-        email: formData.email.trim().toLowerCase(),
-        password: formData.password
-      });
+   try {
+  const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
+    name: formData.name.trim(),
+    email: formData.email.trim().toLowerCase(),
+    password: formData.password
+  });
 
-      const { token, user } = response.data;
+  console.log('🔍 Registration response:', response.data);
 
-      if (token) {
-        localStorage.setItem('token', token);
-        updateUser(user);
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      console.error('Registration error:', error.response?.data);
-      setError(error.response?.data?.message || 'Registration failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+  // Handle different response structures
+  let token, userData;
+  
+  if (response.data.token) {
+    token = response.data.token;
+    
+    // Try different ways to get user data
+    if (response.data.user) {
+      // Structure: { token, user: {...} }
+      userData = response.data.user;
+    } else if (response.data.id || response.data.email) {
+      // Structure: { token, id, email, name, ... }
+      const { token: _, ...user } = response.data;
+      userData = user;
+    } else if (response.data.data?.user) {
+      // Structure: { data: { token, user: {...} } }
+      userData = response.data.data.user;
     }
+  }
+
+  if (token && userData) {
+    localStorage.setItem('token', token);
+    console.log('✅ Calling updateUser with:', userData);
+    updateUser(userData);
+    navigate('/dashboard');
+  } else {
+    console.error('❌ Missing token or user data in response');
+    setError('Registration successful but login failed. Please try logging in.');
+  }
+} catch (error) {
+  console.error('Registration error:', error.response?.data);
+  setError(error.response?.data?.message || 'Registration failed. Please try again.');
+}
   };
 
   return (
