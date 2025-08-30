@@ -17,7 +17,7 @@ const PORT = 4000;
 
 app.use(
   cors({
-    origin: 'https://resu-mate-five.vercel.app',
+    origin: ['http://localhost:5173', 'https://resu-mate-e1x1.vercel.app/'],
     credentials: true,
   })
 );
@@ -36,7 +36,8 @@ app.use(
     setHeaders: (res, path) => {
       res.set(
         'Access-Control-Allow-Origin',
-        'https://resu-mate-five.vercel.app'
+        'http://localhost:5173',
+        'https://resu-mate-e1x1.vercel.app/'
       );
     },
   })
