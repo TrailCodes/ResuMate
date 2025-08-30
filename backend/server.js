@@ -17,7 +17,7 @@ const PORT = 4000;
 
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: 'http://localhost:5173','https://resu-mate-five.vercel.app',
     credentials: true,
   })
 );
@@ -34,7 +34,7 @@ app.use(
   '/upload',
   express.static(path.join(__dirname, 'upload'), {
     setHeaders: (res, path) => {
-      res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
+      res.set('Access-Control-Allow-Origin', 'http://localhost:5173','https://resu-mate-five.vercel.app');
     },
   })
 );
